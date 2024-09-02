@@ -40,6 +40,8 @@ Adrián Navarro Foya C311
 
         python app.py
 
+### Nota:
+Si en el navegador no se ve nada recargue la pagina
 
 
 
