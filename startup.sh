@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Navega hasta el directorio donde esta el archivo
+# Navigate to the directory where the file is located.
 cd .\src\
 
-# Ejecutar la aplicación Flask
+# Run the Flask application
 .\src\python app.py
 
-# Abrir navegador
+# Open browser
 xdg-open http://127.0.0.1:5000

@@ -1,3 +1,4 @@
+// Muestra las configuraciones o el listado de resultados en dependencia de lo que este seleccionado
 document.getElementById('config-button').addEventListener('click', function() {
     var configOptions = document.getElementById('config-options');
     var searchResults = document.getElementById('search-results');
@@ -13,6 +14,7 @@ document.getElementById('config-button').addEventListener('click', function() {
 
 
 document.getElementById('search-form').addEventListener('submit', function(event) {
+    // Check if the custom values ​​checkbox is enabled
     var option1 = document.getElementById('option1');
     if (option1.checked) {
         var hiddenField = document.createElement('input');
@@ -22,6 +24,7 @@ document.getElementById('search-form').addEventListener('submit', function(event
         this.appendChild(hiddenField);
     }
 
+    // Check if the query expand checkbox is on
     if (query_expand_bool.checked) {
         var hiddenField = document.createElement('input');
         hiddenField.type = 'hidden';
@@ -30,6 +33,7 @@ document.getElementById('search-form').addEventListener('submit', function(event
         this.appendChild(hiddenField);
     }
 
+    // Check if the stop words checkbox is on
     if (stop_words_bool.checked) {
         var hiddenField = document.createElement('input');
         hiddenField.type = 'hidden';
@@ -38,6 +42,7 @@ document.getElementById('search-form').addEventListener('submit', function(event
         this.appendChild(hiddenField);
     }
 
+    // Check if the Porter stemmer checkbox is on
     if (stemmer_bool.checked) {
         var hiddenField = document.createElement('input');
         hiddenField.type = 'hidden';
@@ -46,7 +51,7 @@ document.getElementById('search-form').addEventListener('submit', function(event
         this.appendChild(hiddenField);
     }
 
-
+    // Create a slide for each word in the query
     var query = document.querySelector('input[name="search"]').value;
     var words = query.split(' ');
     var sliderValues = [];
@@ -65,6 +70,7 @@ document.getElementById('search-form').addEventListener('submit', function(event
     this.appendChild(sliderField);
 });
 
+// Manages the operation of slides (sliding value bars)
 document.querySelector('input[name="search"]').addEventListener('input', function() {
     var query = this.value;
     var words = query.split(' ');
@@ -97,13 +103,13 @@ document.querySelector('input[name="search"]').addEventListener('input', functio
     });
 });
 
-// Almacenar los valores iniciales de los sliders
+// Store initial values ​​of sliders
 var initialSliderValues = [];
 document.querySelectorAll('input[type="range"]').forEach(function(slider, index) {
     initialSliderValues.push(slider.value);
 });
 
-// Manejar el reseteo de los sliders
+// Handling slider reset
 document.getElementById('reset-button').addEventListener('click', function() {
     document.querySelectorAll('input[type="range"]').forEach(function(slider, index) {
         slider.value = initialSliderValues[index];
@@ -111,6 +117,8 @@ document.getElementById('reset-button').addEventListener('click', function() {
     });
 });
 
+// If the original values ​​of the slides were modified
+// generates a reset button to update them to their previous values
 document.getElementById('option1').addEventListener('change', function() {
     var slidersContainer = document.getElementById('sliders-container');
     var resetButton = document.getElementById('reset-button');
@@ -124,6 +132,7 @@ document.getElementById('option1').addEventListener('change', function() {
     }
 });
 
+// Show slides and reset button only if custom values ​​checkbox is active
 window.onload = function() {
     var option1 = document.getElementById('option1');
     var slidersContainer = document.getElementById('sliders-container');

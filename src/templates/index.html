@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barra de Búsqueda con Configuración</title>
+    <title>Findtastic</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -13,12 +13,12 @@
     <main>
         <div class="search-container">
             <form id="search-form" action="/" method="POST">
-                <input type="text" placeholder="Buscar..." name="search" value="{{ request.form['search'] if request.form.get('search') else '' }}">
-                <button type="submit">Buscar</button>
+                <input type="text" placeholder="Search..." name="search" value="{{ request.form['search'] if request.form.get('search') else '' }}">
+                <button type="submit">Search</button>
                 <button type="button" id="config-button">⚙️</button>
             </form>
             <div id="config-options" class="hidden">
-                <h3>Configuraciones</h3>
+                <h3>Configurations</h3>
                 <label><input type="checkbox" id="query_expand_bool" name="query_expand_bool" {% if query_expand_bool %}checked{% endif %}> Query Expand</label><br>
                 <label><input type="checkbox" id="stop_words_bool" name="stop_words_bool" {% if stop_words_bool %}checked{% endif %}> Stop Words</label><br>
                 <label><input type="checkbox" id="stemmer_bool" name="stemmer_bool" {% if stemmer_bool %}checked{% endif %}> Porter Stemmer</label><br>

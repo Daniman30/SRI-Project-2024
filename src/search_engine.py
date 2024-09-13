@@ -6,7 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 def process_query(query, query_expand_bool, stop_words_bool, stemmer_bool):
-    tokens = word_tokenize(query)
+    tokens = word_tokenize(query, "spanish")
     normal = [token.lower() for token in tokens]
     stop_words = set(stopwords.words('spanish'))
     stemmer = PorterStemmer()        
@@ -14,13 +14,13 @@ def process_query(query, query_expand_bool, stop_words_bool, stemmer_bool):
     if query_expand_bool:
         expanded_words = normal.copy()
         for word in normal:
-            synsets = wordnet.synsets(word)
+            synsets = wordnet.synsets(word, None, "spa")
             for synset in synsets:
                 expanded_words.extend(synset._lemma_names)
         if stop_words_bool:
             final = [word for word in expanded_words if word not in stop_words]
             if stemmer_bool:
-                stemming = [stemmer.stem(token) for token in final]
+                final.extend([stemmer.stem(token) for token in final])
             else:
                 stemming = final
         else:
@@ -43,13 +43,13 @@ def process_query(query, query_expand_bool, stop_words_bool, stemmer_bool):
     
     return ' '.join(stemming)
 
-# Función para leer documentos desde una carpeta
+# Function to read documents from a folder
 def read_documents_from_folder():
     documents = []
-    # Obtener la ruta absoluta de la carpeta actual
+    # Get the absolute path of the current folder
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # Construir la ruta absoluta a la carpeta 'data'
+    # Build the absolute path to the 'data' folder
     folder_path = os.path.join(current_dir, 'data')
     
     documents = {}
@@ -60,57 +60,63 @@ def read_documents_from_folder():
                 documents[filename] = file.read()
     return documents
 
-def coseno_similitud(textos, query, verbose, nuevos_valores):
-    # Crear el vectorizador TF-IDF
-    vectorizador = TfidfVectorizer(lowercase=True, stop_words=None, max_df=1.0, min_df=1)
+def vectorial_model(texts, query, verbose, new_values):
+    # Creating the TF-IDF vectorizer
+    vectorizer = TfidfVectorizer(lowercase=True, stop_words=None, max_df=1.0, min_df=1)
     
-    # Transformar los textos en vectores TF-IDF
-    vectores_tfidf_array = vectorizador.fit_transform(textos).toarray()
+    # Transform texts into TF-IDF vectors
+    vectors_tfidf_array = vectorizer.fit_transform(texts).toarray()
     
-    # Obtener el vocabulario del vectorizador
-    vocabulario = vectorizador.vocabulary_
+    # Getting the vectorizer vocabulary
+    vocabulary = vectorizer.vocabulary_
     
-    palabras_query = query.split(" ")
+    words_query = query.split(" ")
     
     i = 0
-    # Modificar los valores de TF-IDF del vector de la query
-    for palabra, nuevo_valor in zip(palabras_query, nuevos_valores):
-        if palabra in vocabulario:
-            indice = vocabulario[palabra]
-            # Se le asigna la relevancia determinada en el frontend a cada token
+    # Modify TF-IDF values ​​of the query vector
+    for word, new_value in zip(words_query, new_values):
+        if word in vocabulary:
+            index = vocabulary[word]
+            # Each token is assigned the relevance determined in the frontend
             if verbose:
-                vectores_tfidf_array[-1][indice] = nuevo_valor
+                vectors_tfidf_array[-1][index] = new_value
             else:
-                nuevos_valores[i] = round(vectores_tfidf_array[-1][indice], 2)
+                new_values[i] = round(vectors_tfidf_array[-1][index], 2)
             i += 1
     
-    # Calcular la similitud del coseno
-    similitud = cosine_similarity(vectores_tfidf_array)
+    # Calculate cosine similarity
+    similarity = cosine_similarity(vectors_tfidf_array)
     
-    return similitud, nuevos_valores
+    return similarity, new_values
 
 def search(query, verbose, values, query_expand_bool, stop_words_bool, stemmer_bool):
         
-    # Procesar la query
+    # Process the query
     processed_query = process_query(query, query_expand_bool, stop_words_bool, stemmer_bool)
     
-    # Leer los documentos
+    # Read the documents
     documents = read_documents_from_folder()
     
-    # Unir los documentos con la query en una sola lista
+    # Join the documents with the query in a single list
     texts = list(documents.values())
     texts.append(processed_query)
     
-    # Calcular el TF-IDF de cada documento y de la query
-    matrix, final_values = coseno_similitud(texts, query, verbose, values)
+    # Calculate the TF-IDF of each document and the query
+    matrix, final_values = vectorial_model(texts, query, verbose, values)
     
-    # Mapear los documentos con sus TF-IDF
+    # Map documents to their TF-IDF
     doc_tfidf = dict(zip(documents.keys(), matrix[-1][:-1]))
     
-    # Ordenar el diccionario por los valores de mayor a menor
-    diccionario_ordenado = dict(sorted(doc_tfidf.items(), key=lambda item: item[1], reverse=True))
+    # Filter documents with value greater than 0
+    doc_tfidf_filtered = {k: v for k, v in doc_tfidf.items() if v > 0}
     
-    # Devolver los 10 primeros elementos
-    imprimir = dict(list(diccionario_ordenado.items())[:10])
+    if not doc_tfidf_filtered:
+        doc_tfidf_filtered = {"No hay resultados relevantes": 1}
     
-    return imprimir.keys(), final_values
+    # Sort the dictionary by values ​​from highest to lowest
+    sorted_dictionary = dict(sorted(doc_tfidf_filtered.items(), key=lambda item: item[1], reverse=True))
+    
+    # Return the first 10 elements or all if there are less than 10
+    top_10 = dict(list(sorted_dictionary.items())[:10])
+    
+    return top_10.keys(), final_values
